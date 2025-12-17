@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TH Foods Henderson Giving Tree</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: "Bookman Old Style", Georgia, serif;
+      background: linear-gradient(#e6f2ff, #ffffff);
+      color: #000;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow-x: hidden;
+    }
+
+    .container {
+      background: #ffffff;
+      padding: 3rem;
+      max-width: 700px;
+      width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      font-weight: normal;
+      margin-bottom: 2rem;
+    }
+
+    p {
+      margin-bottom: 1rem;
+    }
+
+    .bold {
+      font-weight: bold;
+    }
+
+    input {
+      padding: 0.75rem;
+      width: 80%;
+      max-width: 400px;
+      margin-top: 1rem;
+      font-size: 1rem;
+    }
+
+    button {
+      margin-top: 1.5rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      background: #1f4fd8;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      background: #9bb3ff;
+      cursor: not-allowed;
+    }
+
+    .options button {
+      display: block;
+      margin: 1rem auto;
+      width: 250px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Snowflakes */
+    .snowflake {
+      position: fixed;
+      top: -10px;
+      color: #cfe6ff;
+      font-size: 1.5rem;
+      animation: fall linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes fall {
+      to { transform: translateY(110vh); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Snowflakes -->
+  <div class="snowflake" style="left:5%; animation-duration:12s;">❄</div>
+  <div class="snowflake" style="left:95%; animation-duration:15s;">❄</div>
+
+  <!-- PAGE 1 -->
+  <div class="container" id="page1">
+    <h1>TH Foods Henderson Giving Tree</h1>
+    <h2>Thank you for volunteering to purchase a gift in support of the children aged 0–18 years currently in the Clark County Foster Care system!</h2>
+
+    <p class="bold">Please type your first and last name to continue<br>
+      <span>(Por favor escriba su nombre y apellido para continuar)</span>
+    </p>
+
+    <input type="text" id="employeeName" placeholder="First and Last Name" />
+    <br>
+    <button id="continueBtn" disabled>Continue</button>
+  </div>
+
+  <!-- PAGE 2 -->
+  <div class="container hidden" id="page2">
+    <p class="bold">Please select your preferred price range<br>
+      <span>(Por favor seleccione su rango de precio preferido)</span>
+    </p>
+
+    <div class="options">
+      <button onclick="selectRange('under20')">Under $20</button>
+      <button onclick="selectRange('20to50')">$20–$50</button>
+      <button onclick="selectRange('50to100')">$50–$100</button>
+    </div>
+
+    <p id="rangeMessage"></p>
+    <button class="hidden" id="backBtn" onclick="goBack()">Back</button>
+  </div>
+
+  <!-- PAGE 3 -->
+  <div class="container hidden" id="page3">
+    <p id="childInfo"></p>
+
+    <p class="bold">
+      Thank you for your generosity this holiday season! By clicking the button below that says "I agree", you are agreeing to purchase this gift and acknowledge that it is your responsibility to have the gift turned in to HR by the deadline. You also acknowledge that, in the event you can no longer fulfill the purchase of this gift, you will notify HR immediately so it can be reassigned to someone else.
+      <br>
+      <span>(Gracias por su generosidad esta temporada navideña…)</span>
+    </p>
+
+    <button onclick="agree()">I agree</button>
+  </div>
+
+  <!-- PAGE 4 -->
+  <div class="container hidden" id="page4">
+    <p id="finalMessage"></p>
+  </div>
+
+  <script>
+    let employee = "";
+    let selectedChild = null;
+
+    const nameInput = document.getElementById('employeeName');
+    const continueBtn = document.getElementById('continueBtn');
+
+    nameInput.addEventListener('input', () => {
+      continueBtn.disabled = nameInput.value.trim() === "";
+    });
+
+    continueBtn.onclick = () => {
+      employee = nameInput.value.trim();
+      showPage(2);
+    };
+
+    function selectRange(range) {
+      // Placeholder for Google Sheets integration
+      // This will call a Google Apps Script endpoint
+
+      fetch(`https://script.google.com/macros/s/AKfycby5M5QZJ0Gd4ey4WXeSIQBsieR10hzOFIuBq0O8LRfWIdXJ2qUvZPiGcBTZAiCK6MF5Sg/exec?range=${range}`)
+        .then(res => res.json())
+        .then(data => {
+          if (!data.available) {
+            document.getElementById('rangeMessage').innerText =
+              'All gifts for this price range have been purchased already. Please select another option.\n(Todos los regalos en este rango de precio ya han sido comprados. Por favor seleccione otra opción.)';
+            document.getElementById('backBtn').classList.remove('hidden');
+          } else {
+            selectedChild = data;
+            document.getElementById('childInfo').innerHTML =
+              `Child: ${data.name}<br>Age: ${data.age}<br>Gender: ${data.gender}<br>Gift Request: ${data.gift}`;
+            showPage(3);
+          }
+        });
+    }
+
+    function agree() {
+      fetch('https://script.google.com/macros/s/AKfycby5M5QZJ0Gd4ey4WXeSIQBsieR10hzOFIuBq0O8LRfWIdXJ2qUvZPiGcBTZAiCK6MF5Sg/exec', {
+        method: 'POST',
+        body: JSON.stringify({ employee, childId: selectedChild.id })
+      }).then(() => {
+        document.getElementById('finalMessage').innerHTML =
+          `Below is the gift link for ${selectedChild.name} who would like ${selectedChild.gift} this holiday. Please click on the link to purchase the gift.<br><br>
+          <a href="${selectedChild.link}" target="_blank">Purchase Gift</a>`;
+        showPage(4);
+      });
+    }
+
+    function goBack() {
+      showPage(2);
+    }
+
+    function showPage(num) {
+      ['page1','page2','page3','page4'].forEach((p,i)=>{
+        document.getElementById(p).classList.toggle('hidden', i !== num-1);
+      });
+    }
+  </script>
+
+</body>
+</html>
