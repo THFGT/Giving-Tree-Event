@@ -179,7 +179,7 @@
     };
 
     function selectRange(range) {
-      fetch(`YOUR_APPS_SCRIPT_URL?range=${range}`)
+      fetch(`https://script.google.com/macros/s/AKfycby5M5QZJ0Gd4ey4WXeSIQBsieR10hzOFIuBq0O8LRfWIdXJ2qUvZPiGcBTZAiCK6MF5Sg/exec?range=${range}`)
         .then(res => res.json())
         .then(data => {
           if (!data.available) {
@@ -196,7 +196,7 @@
     }
 
     function agree() {
-      fetch('YOUR_APPS_SCRIPT_URL', {
+      fetch('https://script.google.com/macros/s/AKfycby5M5QZJ0Gd4ey4WXeSIQBsieR10hzOFIuBq0O8LRfWIdXJ2qUvZPiGcBTZAiCK6MF5Sg/exec', {
         method: 'POST',
         body: JSON.stringify({ employee, childId: selectedChild.id })
       }).then(() => {
