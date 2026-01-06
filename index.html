@@ -195,11 +195,14 @@
 
     function agree() {
       fetch('https://script.google.com/macros/s/AKfycby5M5QZJ0Gd4ey4WXeSIQBsieR10hzOFIuBq0O8LRfWIdXJ2qUvZPiGcBTZAiCK6MF5Sg/exec', {
-        method: 'POST',
-        body: JSON.stringify({
-          employee,
-          phone,
-          childId: selectedChild.id
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    employee,
+    phone,
+    childId: selectedChild.id
         })
       }).then(() => {
         document.getElementById('finalMessage').innerHTML =
