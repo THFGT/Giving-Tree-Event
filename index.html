@@ -91,8 +91,7 @@
       position: fixed;
       top: -10px;
       color: #cfe6ff;
-      font-size: 1.5rem;
-      animation: fall linear infinite;
+      animation: fall linear;
       z-index: 1;
       pointer-events: none;
     }
@@ -104,11 +103,7 @@
 </head>
 <body>
 
-  <!-- Snowflakes -->
-  <div class="snowflake" style="left:5%; animation-duration:12s;">❄</div>
-  <div class="snowflake" style="left:95%; animation-duration:15s;">❄</div>
-
-  <!-- PAGE 1: NAME ENTRY -->
+  <!-- PAGE 1 -->
   <div class="container" id="page1">
     <h1>TH Foods Henderson Giving Tree</h1>
     <h2>
@@ -116,16 +111,17 @@
     </h2>
 
     <p class="bold">
-      Please type your first and last name to continue<br>
-      <span>(Por favor escriba su nombre y apellido para continuar)</span>
+      Please type your first and last name and cell phone number to continue<br>
+      <span>(Por favor escriba su nombre, apellido y número de celular para continuar)</span>
     </p>
 
     <input type="text" id="employeeName" placeholder="First and Last Name" />
+    <input type="tel" id="employeePhone" placeholder="Cell Phone Number" />
     <br>
     <button id="continueBtn" disabled>Continue</button>
   </div>
 
-  <!-- PAGE 2: PRICE RANGE -->
+  <!-- PAGE 2 -->
   <div class="container hidden" id="page2">
     <p class="bold">
       Please select your preferred price range<br>
@@ -141,39 +137,43 @@
     <p id="rangeMessage"></p>
   </div>
 
-  <!-- PAGE 3: AGREEMENT -->
+  <!-- PAGE 3 -->
   <div class="container hidden" id="page3">
     <p id="childInfo"></p>
 
     <p class="bold">
-      Thank you for your generosity this holiday season! By clicking the button below that says "I agree", you are agreeing to purchase this gift and acknowledge that it is your responsibility to have the gift turned in to HR by the deadline. You also acknowledge that, in the event you can no longer fulfill the purchase of this gift, you will notify HR immediately so it can be reassigned to someone else.
-      <br><br>
-      <span>
-        (Gracias por su generosidad esta temporada navideña. Al hacer clic en el botón "Acepto", usted acepta comprar este regalo y reconoce que es su responsabilidad entregarlo a Recursos Humanos antes de la fecha límite. También reconoce que, si ya no puede cumplir con la compra de este regalo, notificará a Recursos Humanos de inmediato para que pueda ser reasignado.)
-      </span>
+      Thank you for your generosity this holiday season! By clicking "I agree", you acknowledge responsibility for this gift.
     </p>
 
     <button onclick="agree()">I agree</button>
   </div>
 
-  <!-- PAGE 4: FINAL LINK -->
+  <!-- PAGE 4 -->
   <div class="container hidden" id="page4">
     <p id="finalMessage"></p>
   </div>
 
   <script>
     let employee = "";
+    let phone = "";
     let selectedChild = null;
 
     const nameInput = document.getElementById('employeeName');
+    const phoneInput = document.getElementById('employeePhone');
     const continueBtn = document.getElementById('continueBtn');
 
-    nameInput.addEventListener('input', () => {
-      continueBtn.disabled = nameInput.value.trim() === "";
-    });
+    function validateInputs() {
+      continueBtn.disabled =
+        nameInput.value.trim() === "" ||
+        phoneInput.value.replace(/\D/g, "").length < 10;
+    }
+
+    nameInput.addEventListener('input', validateInputs);
+    phoneInput.addEventListener('input', validateInputs);
 
     continueBtn.onclick = () => {
       employee = nameInput.value.trim();
+      phone = phoneInput.value.trim();
       showPage(2);
     };
 
@@ -183,8 +183,7 @@
         .then(data => {
           if (!data.available) {
             document.getElementById('rangeMessage').innerText =
-              'All gifts for this price range have been purchased already. Please select another option.\n(Todos los regalos en este rango de precio ya han sido comprados. Por favor seleccione otra opción.)';
-            document.getElementById('backBtn').classList.remove('hidden');
+              'All gifts for this price range have been purchased already.';
           } else {
             selectedChild = data;
             document.getElementById('childInfo').innerHTML =
@@ -197,18 +196,16 @@
     function agree() {
       fetch('https://script.google.com/macros/s/AKfycby5M5QZJ0Gd4ey4WXeSIQBsieR10hzOFIuBq0O8LRfWIdXJ2qUvZPiGcBTZAiCK6MF5Sg/exec', {
         method: 'POST',
-        body: JSON.stringify({ employee, childId: selectedChild.id })
+        body: JSON.stringify({
+          employee,
+          phone,
+          childId: selectedChild.id
+        })
       }).then(() => {
         document.getElementById('finalMessage').innerHTML =
-          `Below is the gift link for ${selectedChild.name} who would like ${selectedChild.gift} this holiday. Please click on the link to purchase the gift.<br><br>
-          <span>(A continuación se muestra el enlace del regalo para ${selectedChild.name}, quien desea ${selectedChild.gift} esta temporada navideña. Por favor haga clic en el enlace para comprar el regalo.)</span><br><br>
-          <a href="${selectedChild.link}" target="_blank">Purchase Gift</a>`;
+          `<a href="${selectedChild.link}" target="_blank">Purchase Gift</a>`;
         showPage(4);
       });
-    }
-
-    function goBack() {
-      showPage(2);
     }
 
     function showPage(num) {
@@ -216,6 +213,24 @@
         document.getElementById(p).classList.toggle('hidden', i !== num-1);
       });
     }
+
+    /* Snowflake Generator */
+    setInterval(() => {
+      for (let i = 0; i < 5; i++) {
+        const snowflake = document.createElement('div');
+        snowflake.className = 'snowflake';
+        snowflake.innerHTML = '❄';
+
+        snowflake.style.left = Math.random() * 100 + 'vw';
+        snowflake.style.fontSize = (Math.random() * 20 + 10) + 'px';
+        snowflake.style.opacity = Math.random();
+        snowflake.style.animationDuration = (Math.random() * 5 + 5) + 's';
+
+        document.body.appendChild(snowflake);
+
+        setTimeout(() => snowflake.remove(), 12000);
+      }
+    }, 1000);
   </script>
 
 </body>
